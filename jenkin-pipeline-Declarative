@@ -1,0 +1,58 @@
+
+pipeline{
+agent any;
+tools{
+maven 'maven3.6.3'
+}
+triggers{
+pollSCM('* * * * *')
+}
+
+stages{
+
+stage('CheckoutCode'){
+steps{
+git branch: 'development', credentialsId: '7fadb2eb-dd20-4ea6-93cc-62c3c0a71ca0', url: 'https://github.com/devopes-project/maven-web-application.git'
+}
+}
+stage('Build'){
+steps{
+sh "mvn clean package"
+}
+}
+stage('ExecuteSonarQubeRepot'){
+steps{
+sh "mvn clean sonar:sonar"
+}
+}
+stage('UploadArtifactIntoNexus'){
+steps{
+sh "mvn clean deploy"
+}
+}
+stage('DeployAppIntoTomcatServer'){
+steps{
+
+sshagent(['cc252e29-46e2-42de-a8c5-b5d0c0d51041']) {
+  sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@13.232.146.169:/opt/apache-tomcat-9.0.50/webapps/"
+}
+}
+}
+}//stages closing
+post {
+success{
+emailext body: '''Build success!
+
+regards
+srinath
+devops eng''', subject: 'Build success!', to: 'srinaths119@gmail.com'
+}
+failure{
+emailext body: '''Build failure!
+
+regards
+srinath
+devops eng''', subject: 'Build failure!', to: 'srinaths119@gmail.com'
+}
+}
+}//pipeline closing
