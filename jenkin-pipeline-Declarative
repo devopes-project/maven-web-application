@@ -4,6 +4,9 @@ agent any;
 tools{
 maven 'maven3.6.3'
 }
+options {
+buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: ''))
+}
 triggers{
 pollSCM('* * * * *')
 }
