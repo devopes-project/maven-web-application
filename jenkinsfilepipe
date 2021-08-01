@@ -27,7 +27,7 @@ stage('Sendemail notification')
 {
 emailext body: '''Build over!
 
-regards
+Regards
 srinath
 devops eng''', subject: 'Build over!', to: 'srinaths119@gmail.com'
 }
